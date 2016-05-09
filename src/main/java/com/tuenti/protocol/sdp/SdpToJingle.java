@@ -88,11 +88,19 @@ public class SdpToJingle {
             CandidateType type = CandidateType.valueOf(params[7]);
             candidateExtension.setType(type);
             if (type == CandidateType.host) {
-                candidateExtension.setGeneration(Integer.parseInt(params[9]));
+                if (params.length < 10) {
+                    candidateExtension.setGeneration(0);
+                } else {
+                    candidateExtension.setGeneration(Integer.parseInt(params[9]));
+                }
             } else {
                 candidateExtension.setRelAddr(params[9]);
                 candidateExtension.setRelPort(Integer.parseInt(params[11]));
-                candidateExtension.setGeneration(Integer.parseInt(params[13]));
+                if (params.length < 14) {
+                    candidateExtension.setGeneration(0);
+                } else {
+                    candidateExtension.setGeneration(Integer.parseInt(params[13]));
+                }
             }
 
             iceUdpExtension.addCandidate(candidateExtension);
