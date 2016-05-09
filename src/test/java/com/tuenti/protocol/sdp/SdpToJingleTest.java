@@ -2,13 +2,18 @@ package com.tuenti.protocol.sdp;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.sourceforge.jsdp.*;
+
 import org.jivesoftware.smack.packet.IQ;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.xmlpull.mxp1.MXParser;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
 
@@ -403,4 +408,70 @@ public class SdpToJingleTest {
 		verifyCandidateExtension(iceUdpExts.get(0).getCandidateList().get(2), 2, "1", "udp", 2, 0, CandidateType.srflx,
 				"172.22.76.221", 36798);
 	}
+
+	@Test
+	public void testJitsiVideobridgeJingle() throws Exception {
+	    String jingleIqString =
+	            "    <jingle xmlns=\"urn:xmpp:jingle:1\" action=\"session-initiate\" initiator=\"1@conference.inin.com\" sid=\"5a36a5003cdd395c\">\r\n" +
+	                    "        <content name=\"video\"/>\r\n" +
+	                    "        <content name=\"audio\"/>\r\n" +
+	                    "        <content name=\"data\"/>\r\n" +
+	                    "        <content name=\"video\" senders=\"both\">\r\n" +
+	                    "            <transport xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" pwd=\"1bglu5r23o02u492g32p57smnp\" ufrag=\"2b66n19i3ol7gv\">\r\n" +
+	                    "                <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"1\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca052bb35e4\" network=\"0\" priority=\"2130706431\" protocol=\"ssltcp\" tcptype=\"passive\" type=\"host\" ip=\"172.18.10.26\" port=\"4443\"/>\r\n" +
+	                    "                <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"3\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca0cf362b\" network=\"0\" priority=\"2130706431\" protocol=\"udp\" type=\"host\" ip=\"172.18.10.26\" port=\"10000\"/>\r\n" +
+	                    "                <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"2\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca023ed4177\" network=\"0\" priority=\"1694498815\" protocol=\"ssltcp\" tcptype=\"passive\" type=\"srflx\" ip=\"54.89.50.245\" port=\"4443\" rel-addr=\"172.18.10.26\" rel-port=\"4443\"/>\r\n" +
+	                    "                <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"4\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca06cff057e\" network=\"0\" priority=\"1677724415\" protocol=\"udp\" type=\"srflx\" ip=\"54.89.50.245\" port=\"10000\" rel-addr=\"172.18.10.26\" rel-port=\"10000\"/>AA:C1:BA:15:EA:8C:0A:8A:06:35:80:65:1C:2F:52:8E:24:E7:87:7A</transport>\r\n" +
+	                    "                <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"video\">\r\n" +
+	                    "                    <payload-type xmlns=\"urn:xmpp:jingle:apps:rtp:1\" id=\"100\" name=\"VP8\" clockrate=\"90000\"/>\r\n" +
+	                    "                    <payload-type xmlns=\"urn:xmpp:jingle:apps:rtp:1\" id=\"116\" name=\"red\" clockrate=\"90000\"/>\r\n" +
+	                    "                    <payload-type xmlns=\"urn:xmpp:jingle:apps:rtp:1\" id=\"117\" name=\"ulpfec\" clockrate=\"90000\"/>\r\n" +
+	                    "                    <rtp-hdrext xmlns=\"urn:xmpp:jingle:apps:rtp:rtp-hdrext:0\" id=\"2\" uri=\"urn:ietf:params:rtp-hdrext:toffset\"/>\r\n" +
+	                    "                    <rtp-hdrext xmlns=\"urn:xmpp:jingle:apps:rtp:rtp-hdrext:0\" id=\"3\" uri=\"http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time\"/>\r\n" +
+	                    "                    <rtcp-mux xmlns=\"urn:xmpp:jingle:apps:rtp:1\"/>\r\n" +
+	                    "                </description>\r\n" +
+	                    "            </content>\r\n" +
+	                    "            <content name=\"audio\" senders=\"both\">\r\n" +
+	                    "                <transport xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" pwd=\"1bglu5r23o02u492g32p57smnp\" ufrag=\"2b66n19i3ol7gv\">\r\n" +
+	                    "                    <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"1\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca052bb35e4\" network=\"0\" priority=\"2130706431\" protocol=\"ssltcp\" tcptype=\"passive\" type=\"host\" ip=\"172.18.10.26\" port=\"4443\"/>\r\n" +
+	                    "                    <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"3\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca0cf362b\" network=\"0\" priority=\"2130706431\" protocol=\"udp\" type=\"host\" ip=\"172.18.10.26\" port=\"10000\"/>\r\n" +
+	                    "                    <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"2\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca023ed4177\" network=\"0\" priority=\"1694498815\" protocol=\"ssltcp\" tcptype=\"passive\" type=\"srflx\" ip=\"54.89.50.245\" port=\"4443\" rel-addr=\"172.18.10.26\" rel-port=\"4443\"/>\r\n" +
+	                    "                    <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"4\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca06cff057e\" network=\"0\" priority=\"1677724415\" protocol=\"udp\" type=\"srflx\" ip=\"54.89.50.245\" port=\"10000\" rel-addr=\"172.18.10.26\" rel-port=\"10000\"/>AA:C1:BA:15:EA:8C:0A:8A:06:35:80:65:1C:2F:52:8E:24:E7:87:7A</transport>\r\n" +
+	                    "                    <description xmlns=\"urn:xmpp:jingle:apps:rtp:1\" media=\"audio\">\r\n" +
+	                    "                        <payload-type xmlns=\"urn:xmpp:jingle:apps:rtp:1\" id=\"111\" name=\"opus\" clockrate=\"48000\" channels=\"2\">\r\n" +
+	                    "                            <parameter xmlns=\"urn:xmpp:jingle:apps:rtp:1\" name=\"minptime\" value=\"10\"/>\r\n" +
+	                    "                        </payload-type>\r\n" +
+	                    "                        <payload-type xmlns=\"urn:xmpp:jingle:apps:rtp:1\" id=\"103\" name=\"ISAC\" clockrate=\"16000\"/>\r\n" +
+	                    "                        <payload-type xmlns=\"urn:xmpp:jingle:apps:rtp:1\" id=\"104\" name=\"ISAC\" clockrate=\"32000\"/>\r\n" +
+	                    "                        <payload-type xmlns=\"urn:xmpp:jingle:apps:rtp:1\" id=\"9\" name=\"G722\" clockrate=\"8000\"/>\r\n" +
+	                    "                        <payload-type xmlns=\"urn:xmpp:jingle:apps:rtp:1\" id=\"0\" name=\"PCMU\" clockrate=\"8000\"/>\r\n" +
+	                    "                        <payload-type xmlns=\"urn:xmpp:jingle:apps:rtp:1\" id=\"8\" name=\"PCMA\" clockrate=\"8000\"/>\r\n" +
+	                    "                        <rtp-hdrext xmlns=\"urn:xmpp:jingle:apps:rtp:rtp-hdrext:0\" id=\"1\" uri=\"urn:ietf:params:rtp-hdrext:ssrc-audio-level\"/>:\r\n" +
+	                    "                        <rtp-hdrext xmlns=\"urn:xmpp:jingle:apps:rtp:rtp-hdrext:0\" id=\"3\" uri=\"http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time\"/>\r\n" +
+	                    "                        <rtcp-mux xmlns=\"urn:xmpp:jingle:apps:rtp:1\"/>\r\n" +
+	                    "                    </description>\r\n" +
+	                    "                </content>\r\n" +
+	                    "                <content name=\"data\" senders=\"initiator\">\r\n" +
+	                    "                    <transport xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" pwd=\"1bglu5r23o02u492g32p57smnp\" ufrag=\"2b66n19i3ol7gv\">\r\n" +
+	                    "                        <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"1\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca052bb35e4\" network=\"0\" priority=\"2130706431\" protocol=\"ssltcp\" tcptype=\"passive\" type=\"host\" ip=\"172.18.10.26\" port=\"4443\"/>\r\n" +
+	                    "                        <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"3\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca0cf362b\" network=\"0\" priority=\"2130706431\" protocol=\"udp\" type=\"host\" ip=\"172.18.10.26\" port=\"10000\"/>\r\n" +
+	                    "                        <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"2\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca023ed4177\" network=\"0\" priority=\"1694498815\" protocol=\"ssltcp\" tcptype=\"passive\" type=\"srflx\" ip=\"54.89.50.245\" port=\"4443\" rel-addr=\"172.18.10.26\" rel-port=\"4443\"/>\r\n" +
+	                    "                        <candidate xmlns=\"urn:xmpp:jingle:transports:ice-udp:1\" component=\"1\" foundation=\"4\" generation=\"0\" id=\"5a36a5003cdd395c8a7d872659dacca06cff057e\" network=\"0\" priority=\"1677724415\" protocol=\"udp\" type=\"srflx\" ip=\"54.89.50.245\" port=\"10000\" rel-addr=\"172.18.10.26\" rel-port=\"10000\"/>AA:C1:BA:15:EA:8C:0A:8A:06:35:80:65:1C:2F:52:8E:24:E7:87:7A</transport>\r\n" +
+	                    "                    </content>\r\n" +
+	                    "                </jingle>\r\n";
+	    
+	    XmlPullParser parser = new MXParser();
+	    parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
+	    parser.setInput(new StringReader(jingleIqString));
+	    parser.next();
+	    JingleIQ iq = new JingleIQProvider().parseIQ(parser);
+	    SessionDescription sdp = SdpToJingle.sdpFromJingle(iq);
+	    Assert.assertNotNull(sdp);
+	    String text = sdp.toString();
+	    Assert.assertTrue(text.contains("a=rtpmap:111 opus/48000"));
+	    Assert.assertTrue(text.contains("m=audio 9 RTP/SAVPF 111 103 104 9 0 8"));
+	    Assert.assertTrue(text.contains("a=rtpmap:100 VP8/90000"));
+	    Assert.assertTrue(text.contains("a=rtcp-mux"));
+	}
+
 }
